@@ -26,7 +26,7 @@ module Bullet
 
   class << self
     attr_writer :enable, :n_plus_one_query_enable, :unused_eager_loading_enable, :counter_cache_enable
-    attr_reader :notification_collector, :whitelist
+    attr_reader :notification_collector, :whitelist, :caller_whitelist
     attr_accessor :add_footer
 
     delegate :alert=, :console=, :growl=, :rails_logger=, :xmpp=, :airbrake=, :to => UniformNotifier
@@ -69,12 +69,17 @@ module Bullet
       @whitelist[options[:type]][options[:class_name].classify] << options[:association].to_s.tableize.to_sym
     end
 
+    def add_caller_whitelist(path)
+      @caller_whitelist << path
+    end
+
     def get_whitelist_associations(type, class_name)
       Array(@whitelist[type][class_name])
     end
 
     def reset_whitelist
       @whitelist = {:n_plus_one_query => {}, :unused_eager_loading => {}, :counter_cache => {}}
+      @caller_whitelist = []
     end
 
     def bullet_logger=(active)
