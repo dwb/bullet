@@ -26,7 +26,7 @@ module Bullet
 
   class << self
     attr_writer :enable, :n_plus_one_query_enable, :unused_eager_loading_enable, :counter_cache_enable, :stacktrace_includes
-    attr_reader :notification_collector, :whitelist
+    attr_reader :notification_collector, :whitelist, :caller_whitelist
     attr_accessor :add_footer, :orm_pathches_applied
 
     available_notifiers = UniformNotifier::AVAILABLE_NOTIFIERS.map { |notifier| "#{notifier}=" }
@@ -78,12 +78,17 @@ module Bullet
       @whitelist[options[:type]][options[:class_name].classify] << options[:association].to_sym
     end
 
+    def add_caller_whitelist(path)
+      @caller_whitelist << path
+    end
+
     def get_whitelist_associations(type, class_name)
       Array(@whitelist[type][class_name])
     end
 
     def reset_whitelist
       @whitelist = {:n_plus_one_query => {}, :unused_eager_loading => {}, :counter_cache => {}}
+      @caller_whitelist = []
     end
 
     def bullet_logger=(active)
